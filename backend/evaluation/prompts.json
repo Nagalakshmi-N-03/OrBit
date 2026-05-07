@@ -1,0 +1,106 @@
+{
+  "real_prompts": [
+    {
+      "id": 1,
+      "type": "real",
+      "prompt": "Build a project management tool with kanban board, tasks, deadlines, team roles, and notifications"
+    },
+    {
+      "id": 2,
+      "type": "real",
+      "prompt": "Build a CRM with contacts, deals, pipeline stages, role-based access, and admin analytics"
+    },
+    {
+      "id": 3,
+      "type": "real",
+      "prompt": "Create an e-commerce store with products, cart, checkout, payments, and inventory management"
+    },
+    {
+      "id": 4,
+      "type": "real",
+      "prompt": "Build a hospital management system with patient records, appointments, prescriptions, and billing"
+    },
+    {
+      "id": 5,
+      "type": "real",
+      "prompt": "Create a learning management system where teachers upload courses and students track progress"
+    },
+    {
+      "id": 6,
+      "type": "real",
+      "prompt": "Build a food delivery app with restaurants, menus, orders, delivery tracking, and payments"
+    },
+    {
+      "id": 7,
+      "type": "real",
+      "prompt": "Create a hotel booking system with room listings, reservations, availability, and payments"
+    },
+    {
+      "id": 8,
+      "type": "real",
+      "prompt": "Build a job portal where companies post jobs, candidates apply, and admins approve listings"
+    },
+    {
+      "id": 9,
+      "type": "real",
+      "prompt": "Create a community forum with posts, comments, upvotes, user badges, and moderation tools"
+    },
+    {
+      "id": 10,
+      "type": "real",
+      "prompt": "Build a SaaS analytics dashboard where businesses track KPIs, team performance, and generate reports"
+    }
+  ],
+  "edge_cases": [
+    {
+      "id": 11,
+      "type": "vague",
+      "prompt": "Build an app"
+    },
+    {
+      "id": 12,
+      "type": "vague",
+      "prompt": "Make something for teams"
+    },
+    {
+      "id": 13,
+      "type": "conflicting",
+      "prompt": "Build a free app but charge users for every feature"
+    },
+    {
+      "id": 14,
+      "type": "conflicting",
+      "prompt": "All users should be admins but only admins can see data"
+    },
+    {
+      "id": 15,
+      "type": "incomplete",
+      "prompt": "Add a dashboard"
+    },
+    {
+      "id": 16,
+      "type": "incomplete",
+      "prompt": "Build something with login"
+    },
+    {
+      "id": 17,
+      "type": "overspecified",
+      "prompt": "Build a project management tool with kanban boards, gantt charts, time tracking, invoicing, client portal, resource allocation, sprint planning, burndown charts, slack integration, github integration, google calendar sync, custom fields, recurring tasks, subtasks, dependencies, priority levels, tags, comments, file attachments, video calls, and AI suggestions"
+    },
+    {
+      "id": 18,
+      "type": "ambiguous",
+      "prompt": "Build an app with roles and payments and some kind of tracking"
+    },
+    {
+      "id": 19,
+      "type": "conflicting",
+      "prompt": "Build a simple app but make it enterprise grade with military level security"
+    },
+    {
+      "id": 20,
+      "type": "incomplete",
+      "prompt": "Build an app with payments"
+    }
+  ]
+}
