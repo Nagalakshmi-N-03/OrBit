@@ -1,18 +1,9 @@
-response = client.chat.completions.create(
-    model="gpt-4o-mini",
-    temperature=temperature,
-    messages=[
-        {
-            "role": "user",
-            "content": SYSTEM_DESIGN_PROMPT.format(
-                intent=json.dumps(intent.model_dump(), indent=2)
-            )
-        }
-    ]
-)
+import json
+from openai import OpenAI
+from backend.config.settings import settings
+from backend.models.schemas import IntentData, SystemDesignData
 
-raw = response.choices[0].message.content.strip()
-raw = raw.replace("```json", "").replace("```", "").strip()
+client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
 SYSTEM_DESIGN_PROMPT = """
 You are a senior software architect.
@@ -50,9 +41,6 @@ App Intent:
 """
 
 def design_system(intent: IntentData, mode: str = "balanced") -> SystemDesignData:
-    """
-    Stage 2 — Design system architecture from intent
-    """
     temperature = {
         "fast": settings.TEMPERATURE_FAST,
         "balanced": settings.TEMPERATURE_BALANCED,
@@ -61,23 +49,20 @@ def design_system(intent: IntentData, mode: str = "balanced") -> SystemDesignDat
 
     print(f"🏗️  Stage 2: Designing system architecture...")
 
-    response = client.messages.create(
-        model=settings.PRIMARY_MODEL,
-        max_tokens=2048,
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
         temperature=temperature,
-        messages=[
-            {
-                "role": "user",
-                "content": SYSTEM_DESIGN_PROMPT.format(
-                    intent=json.dumps(intent.model_dump(), indent=2)
-                )
-            }
-        ]
+        max_tokens=2048,
+        messages=[{
+            "role": "user",
+            "content": SYSTEM_DESIGN_PROMPT.format(
+                intent=json.dumps(intent.model_dump(), indent=2)
+            )
+        }]
     )
 
-    raw = response.content[0].text.strip()
+    raw = response.choices[0].message.content.strip()
     raw = raw.replace("```json", "").replace("```", "").strip()
-
     data = json.loads(raw)
 
     design = SystemDesignData(**data)

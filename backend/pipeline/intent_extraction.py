@@ -1,16 +1,9 @@
-response = client.chat.completions.create(
-    model="gpt-4o-mini",
-    temperature=temperature,
-    messages=[
-        {
-            "role": "user",
-            "content": INTENT_PROMPT.format(prompt=prompt)
-        }
-    ]
-)
+import json
+from openai import OpenAI
+from backend.config.settings import settings
+from backend.models.schemas import IntentData
 
-raw = response.choices[0].message.content.strip()
-raw = raw.replace("```json", "").replace("```", "").strip()
+client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
 INTENT_PROMPT = """
 You are an expert software architect AI.
@@ -42,9 +35,6 @@ User Prompt: {prompt}
 """
 
 def extract_intent(prompt: str, mode: str = "balanced") -> IntentData:
-    """
-    Stage 1 — Extract intent from user prompt
-    """
     temperature = {
         "fast": settings.TEMPERATURE_FAST,
         "balanced": settings.TEMPERATURE_BALANCED,
@@ -53,23 +43,15 @@ def extract_intent(prompt: str, mode: str = "balanced") -> IntentData:
 
     print(f"🔍 Stage 1: Extracting intent from prompt...")
 
-    response = client.messages.create(
-        model=settings.PRIMARY_MODEL,
-        max_tokens=1024,
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
         temperature=temperature,
-        messages=[
-            {
-                "role": "user",
-                "content": INTENT_PROMPT.format(prompt=prompt)
-            }
-        ]
+        max_tokens=1024,
+        messages=[{"role": "user", "content": INTENT_PROMPT.format(prompt=prompt)}]
     )
 
-    raw = response.content[0].text.strip()
-
-    # Clean if model adds backticks
+    raw = response.choices[0].message.content.strip()
     raw = raw.replace("```json", "").replace("```", "").strip()
-
     data = json.loads(raw)
 
     intent = IntentData(**data)
