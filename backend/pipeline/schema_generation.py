@@ -1,12 +1,12 @@
 import json
-import anthropic
+from openai import OpenAI
 from backend.config.settings import settings
 from backend.models.schemas import (
     IntentData, SystemDesignData,
     UISchema, APISchema, DBSchema, AuthSchema, BusinessLogic
 )
 
-client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
+client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
 # ─────────────────────────────────────────
 # UI SCHEMA PROMPT
@@ -191,27 +191,31 @@ Design: {design}
 """
 
 # ─────────────────────────────────────────
-# GENERATOR FUNCTIONS
+# OPENAI CALL FUNCTION
 # ─────────────────────────────────────────
 
-def _call_claude(prompt: str, mode: str, max_tokens: int = 2048) -> dict:
+def _call_openai(prompt: str, mode: str, max_tokens: int = 2048) -> dict:
     temperature = {
         "fast": settings.TEMPERATURE_FAST,
         "balanced": settings.TEMPERATURE_BALANCED,
         "quality": settings.TEMPERATURE_QUALITY
     }.get(mode, settings.TEMPERATURE_BALANCED)
 
-    response = client.messages.create(
-        model=settings.PRIMARY_MODEL,
-        max_tokens=max_tokens,
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
         temperature=temperature,
+        max_tokens=max_tokens,
         messages=[{"role": "user", "content": prompt}]
     )
 
-    raw = response.content[0].text.strip()
+    raw = response.choices[0].message.content.strip()
     raw = raw.replace("```json", "").replace("```", "").strip()
     return json.loads(raw)
 
+
+# ─────────────────────────────────────────
+# MAIN GENERATOR FUNCTION
+# ─────────────────────────────────────────
 
 def generate_schemas(
     intent: IntentData,
@@ -228,7 +232,7 @@ def generate_schemas(
 
     # Generate UI Schema
     print("   → Generating UI Schema...")
-    ui_data = _call_claude(
+    ui_data = _call_openai(
         UI_PROMPT.format(intent=intent_str, design=design_str),
         mode, 2048
     )
@@ -236,7 +240,7 @@ def generate_schemas(
 
     # Generate API Schema
     print("   → Generating API Schema...")
-    api_data = _call_claude(
+    api_data = _call_openai(
         API_PROMPT.format(intent=intent_str, design=design_str),
         mode, 2048
     )
@@ -244,7 +248,7 @@ def generate_schemas(
 
     # Generate DB Schema
     print("   → Generating DB Schema...")
-    db_data = _call_claude(
+    db_data = _call_openai(
         DB_PROMPT.format(intent=intent_str, design=design_str),
         mode, 2048
     )
@@ -252,7 +256,7 @@ def generate_schemas(
 
     # Generate Auth Schema
     print("   → Generating Auth Schema...")
-    auth_data = _call_claude(
+    auth_data = _call_openai(
         AUTH_PROMPT.format(intent=intent_str, design=design_str),
         mode, 1024
     )
@@ -260,7 +264,7 @@ def generate_schemas(
 
     # Generate Business Logic
     print("   → Generating Business Logic...")
-    biz_data = _call_claude(
+    biz_data = _call_openai(
         BUSINESS_PROMPT.format(intent=intent_str, design=design_str),
         mode, 1024
     )

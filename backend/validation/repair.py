@@ -1,14 +1,21 @@
-import json
-import anthropic
-from backend.config.settings import settings
-from backend.models.schemas import (
-    UISchema, APISchema, DBSchema, AuthSchema,
-    BusinessLogic, ValidationReport, ValidationError,
-    ValidationStatus
+response = client.chat.completions.create(
+    model="gpt-4o-mini",
+    temperature=0.1,
+    max_tokens=2048,
+    messages=[
+        {
+            "role": "user",
+            "content": REPAIR_PROMPT.format(
+                layer=layer_name,
+                errors=error_descriptions,
+                schema=schema_json
+            )
+        }
+    ]
 )
-from typing import List
 
-client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
+raw = response.choices[0].message.content.strip()
+raw = raw.replace("```json", "").replace("```", "").strip()
 
 # ─────────────────────────────────────────
 # REPAIR PROMPTS PER LAYER

@@ -1,12 +1,23 @@
-import json
-import anthropic
-from backend.config.settings import settings
-from backend.models.schemas import (
-    IntentData, SystemDesignData,
-    UISchema, APISchema, DBSchema, AuthSchema, BusinessLogic
+response = client.chat.completions.create(
+    model="gpt-4o-mini",
+    temperature=temperature,
+    max_tokens=4096,
+    messages=[
+        {
+            "role": "user",
+            "content": REFINEMENT_PROMPT.format(
+                ui_schema=json.dumps(ui_schema.model_dump(), indent=2),
+                api_schema=json.dumps(api_schema.model_dump(), indent=2),
+                db_schema=json.dumps(db_schema.model_dump(), indent=2),
+                auth_schema=json.dumps(auth_schema.model_dump(), indent=2),
+                business_logic=json.dumps(business_logic.model_dump(), indent=2)
+            )
+        }
+    ]
 )
 
-client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
+raw = response.choices[0].message.content.strip()
+raw = raw.replace("```json", "").replace("```", "").strip()
 
 REFINEMENT_PROMPT = """
 You are a senior software architect doing a final review.

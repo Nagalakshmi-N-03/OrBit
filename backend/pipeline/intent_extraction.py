@@ -1,9 +1,16 @@
-import json
-import anthropic
-from backend.config.settings import settings
-from backend.models.schemas import IntentData
+response = client.chat.completions.create(
+    model="gpt-4o-mini",
+    temperature=temperature,
+    messages=[
+        {
+            "role": "user",
+            "content": INTENT_PROMPT.format(prompt=prompt)
+        }
+    ]
+)
 
-client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
+raw = response.choices[0].message.content.strip()
+raw = raw.replace("```json", "").replace("```", "").strip()
 
 INTENT_PROMPT = """
 You are an expert software architect AI.
