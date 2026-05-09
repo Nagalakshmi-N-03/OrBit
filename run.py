@@ -5,7 +5,7 @@ import os
 load_dotenv()
 
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", os.getenv("APP_PORT", 8000)))
+    port = int(os.getenv("PORT", os.getenv("APP_PORT", 8080)))
     
     print(f"""
     ╔══════════════════════════════════╗

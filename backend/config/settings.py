@@ -5,7 +5,7 @@ class Settings(BaseSettings):
     # App
     APP_NAME: str = "OrBit"
     APP_ENV: str = "development"
-    APP_PORT: int = 8000
+    APP_PORT: int = 8080
 
     # API Keys
     GROQ_API_KEY: str = ""
