@@ -4,7 +4,6 @@ from contextlib import asynccontextmanager
 from backend.config.settings import settings
 from backend.config.database import init_db
 
-# Import routes
 from backend.routes import generator, analytics, evaluation
 
 @asynccontextmanager
@@ -21,7 +20,7 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# CORS
+# CORS — single block, no duplicates
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],

@@ -1,9 +1,9 @@
 import json
-from openai import OpenAI
+from groq import Groq
 from backend.config.settings import settings
 from backend.models.schemas import IntentData, SystemDesignData
 
-client = OpenAI(api_key=settings.OPENAI_API_KEY)
+client = Groq(api_key=settings.GROQ_API_KEY)
 
 SYSTEM_DESIGN_PROMPT = """
 You are a senior software architect.
@@ -41,6 +41,9 @@ App Intent:
 """
 
 def design_system(intent: IntentData, mode: str = "balanced") -> SystemDesignData:
+    """
+    Stage 2 — Design system architecture from intent
+    """
     temperature = {
         "fast": settings.TEMPERATURE_FAST,
         "balanced": settings.TEMPERATURE_BALANCED,
@@ -50,21 +53,23 @@ def design_system(intent: IntentData, mode: str = "balanced") -> SystemDesignDat
     print(f"🏗️  Stage 2: Designing system architecture...")
 
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model="llama-3.3-70b-versatile",
         temperature=temperature,
         max_tokens=2048,
-        messages=[{
-            "role": "user",
-            "content": SYSTEM_DESIGN_PROMPT.format(
-                intent=json.dumps(intent.model_dump(), indent=2)
-            )
-        }]
+        messages=[
+            {
+                "role": "user",
+                "content": SYSTEM_DESIGN_PROMPT.format(
+                    intent=json.dumps(intent.model_dump(), indent=2)
+                )
+            }
+        ]
     )
 
     raw = response.choices[0].message.content.strip()
     raw = raw.replace("```json", "").replace("```", "").strip()
-    data = json.loads(raw)
 
+    data = json.loads(raw)
     design = SystemDesignData(**data)
     print(f"✅ Stage 2 Done — Pages: {len(design.pages)} | Entities: {len(design.entities)}")
     return design
