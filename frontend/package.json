@@ -19,6 +19,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "preinstall": "npm config set legacy-peer-deps true",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
