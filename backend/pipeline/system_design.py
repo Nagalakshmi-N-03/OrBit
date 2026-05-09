@@ -7,43 +7,40 @@ client = Groq(api_key=settings.GROQ_API_KEY)
 
 SYSTEM_DESIGN_PROMPT = """
 You are a senior software architect.
-Based on the extracted app intent below, design the full system architecture.
+Design the full system architecture for this app.
 
-Return ONLY a valid JSON object with this exact structure:
+Return ONLY a valid JSON object:
 {{
-    "pages": ["list of all pages in the app"],
+    "pages": ["Login", "Register", "Dashboard", "list all pages"],
     "entities": {{
         "EntityName": {{
-            "fields": ["field1", "field2"],
+            "fields": ["id", "name", "created_at"],
             "relations": ["related entity names"]
         }}
     }},
     "user_flows": [
-        "describe each main user flow as a string"
+        "User registers and logs in",
+        "User creates a project"
     ],
     "data_flows": [
-        "describe how data moves between parts"
+        "User submits form -> API -> Database"
     ],
     "architecture_notes": [
-        "important design decisions made"
+        "JWT used for authentication"
     ]
 }}
 
 Rules:
 - Return ONLY JSON, no explanation, no markdown, no backticks
-- Pages must cover all features mentioned
-- Every role must have at least one unique page
-- Entities must cover all data needs
-- Include auth pages always (Login, Register)
+- Include Login and Register pages always
+- Keep pages list concise (max 10 pages)
+- Keep entities concise (max 6 entities)
 
 App Intent:
 {intent}
 """
 
 def design_system(intent: IntentData, mode: str = "balanced") -> SystemDesignData:
-    """
-    Stage 2 — Design system architecture from intent
-    """
     temperature = {
         "fast": settings.TEMPERATURE_FAST,
         "balanced": settings.TEMPERATURE_BALANCED,
@@ -53,9 +50,9 @@ def design_system(intent: IntentData, mode: str = "balanced") -> SystemDesignDat
     print(f"🏗️  Stage 2: Designing system architecture...")
 
     response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model="llama-3.1-8b-instant",
         temperature=temperature,
-        max_tokens=2048,
+        max_tokens=1200,
         messages=[
             {
                 "role": "user",

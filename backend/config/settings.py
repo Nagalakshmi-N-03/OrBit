@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     # API Keys
     GROQ_API_KEY: str = ""
     ANTHROPIC_API_KEY: Optional[str] = None
-    OPENAI_API_KEY: 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
+    OPENAI_API_KEY: Optional[str] = None
 
     # Database
     DATABASE_URL: str = "sqlite:///./orbit.db"

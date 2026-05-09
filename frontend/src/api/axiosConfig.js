@@ -5,10 +5,9 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 120000, // 2 mins for long generation
+  timeout: 120000, // 2 minutes
 });
 
-// Request interceptor
 api.interceptors.request.use(
   (config) => {
     console.log(`→ ${config.method?.toUpperCase()} ${config.url}`);
@@ -17,7 +16,6 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor
 api.interceptors.response.use(
   (response) => response,
   (error) => {

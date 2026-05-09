@@ -1,5 +1,6 @@
 import json
 from groq import Groq
+from json_repair import repair_json
 from backend.config.settings import settings
 from backend.models.schemas import (
     IntentData, SystemDesignData,
@@ -8,172 +9,60 @@ from backend.models.schemas import (
 
 client = Groq(api_key=settings.GROQ_API_KEY)
 
-UI_PROMPT = """
-You are a UI architect. Generate a complete UI schema.
+UI_PROMPT = """Generate a UI schema. Return ONLY compact JSON, no explanation.
 
-Return ONLY valid JSON:
-{{
-    "pages": [
-        {{
-            "name": "PageName",
-            "route": "/route",
-            "access": ["roles that can access"],
-            "components": ["list of components on this page"],
-            "forms": [
-                {{
-                    "name": "FormName",
-                    "fields": [
-                        {{
-                            "name": "fieldName",
-                            "type": "text/email/password/select/date",
-                            "required": true
-                        }}
-                    ]
-                }}
-            ]
-        }}
-    ],
-    "layouts": {{
-        "authenticated": "sidebar + navbar",
-        "public": "centered"
-    }},
-    "components": {{
-        "shared": ["list of shared components"]
-    }}
-}}
+Format:
+{{"pages":[{{"name":"Login","route":"/login","access":["public"],"components":["LoginForm","Logo"],"forms":[{{"name":"LoginForm","fields":[{{"name":"email","type":"email","required":true}},{{"name":"password","type":"password","required":true}}]}}]}},{{"name":"Dashboard","route":"/dashboard","access":["admin","user"],"components":["Sidebar","Header","StatsCard"],"forms":[]}}],"layouts":{{"authenticated":"sidebar + navbar","public":"centered"}},"components":{{"shared":["Navbar","Sidebar","Button","Modal"]}}}}
 
-Rules:
-- Return ONLY JSON, no markdown, no backticks
-- Every page must have at least 2 components
-- Include Login and Register pages always
+App type: {app_type}
+Features: {features}
+Roles: {roles}
+Pages: {pages}
 
-Intent: {intent}
-Design: {design}
-"""
+Include Login and Register pages. Keep it concise."""
 
-API_PROMPT = """
-You are a backend architect. Generate a complete REST API schema.
+API_PROMPT = """Generate an API schema. Return ONLY compact JSON, no explanation.
 
-Return ONLY valid JSON:
-{{
-    "base_url": "/api/v1",
-    "endpoints": [
-        {{
-            "path": "/resource",
-            "method": "GET",
-            "description": "what this endpoint does",
-            "auth_required": true,
-            "roles_allowed": ["admin"],
-            "request_body": {{
-                "field": "type"
-            }},
-            "response": {{
-                "field": "type"
-            }}
-        }}
-    ]
-}}
+Format:
+{{"base_url":"/api/v1","endpoints":[{{"path":"/auth/login","method":"POST","description":"User login","auth_required":false,"roles_allowed":["public"],"request_body":{{"email":"string","password":"string"}},"response":{{"token":"string"}}}},{{"path":"/auth/register","method":"POST","description":"Register","auth_required":false,"roles_allowed":["public"],"request_body":{{"name":"string","email":"string","password":"string"}},"response":{{"user":"object"}}}}]}}
 
-Rules:
-- Return ONLY JSON, no markdown, no backticks
-- Include CRUD endpoints for every entity
-- Always include auth endpoints (login, register, logout)
-- Mark which endpoints need authentication
+App type: {app_type}
+Features: {features}
+Entities: {entities}
+Roles: {roles}
 
-Intent: {intent}
-Design: {design}
-"""
+Include auth endpoints + CRUD for each entity. Keep concise."""
 
-DB_PROMPT = """
-You are a database architect. Generate a complete database schema.
+DB_PROMPT = """Generate a database schema. Return ONLY compact JSON, no explanation.
 
-Return ONLY valid JSON:
-{{
-    "tables": [
-        {{
-            "name": "table_name",
-            "columns": [
-                {{
-                    "name": "id",
-                    "type": "UUID",
-                    "primary_key": true,
-                    "nullable": false,
-                    "unique": true,
-                    "default": null
-                }}
-            ]
-        }}
-    ],
-    "relationships": [
-        {{
-            "from_table": "table1",
-            "to_table": "table2",
-            "type": "one_to_many",
-            "foreign_key": "column_name"
-        }}
-    ]
-}}
+Format:
+{{"tables":[{{"name":"users","columns":[{{"name":"id","type":"UUID","primary_key":true,"nullable":false,"unique":true,"default":null}},{{"name":"name","type":"VARCHAR","primary_key":false,"nullable":false,"unique":false,"default":null}},{{"name":"email","type":"VARCHAR","primary_key":false,"nullable":false,"unique":true,"default":null}},{{"name":"created_at","type":"TIMESTAMP","primary_key":false,"nullable":false,"unique":false,"default":"now()"}}]}}],"relationships":[{{"from_table":"tasks","to_table":"users","type":"many_to_one","foreign_key":"user_id"}}]}}
 
-Rules:
-- Return ONLY JSON, no markdown, no backticks
-- Every table must have an id column (UUID)
-- Every table must have created_at timestamp
-- Include users table always
+App type: {app_type}
+Entities: {entities}
 
-Intent: {intent}
-Design: {design}
-"""
+Every table needs id (UUID) and created_at. Include users table."""
 
-AUTH_PROMPT = """
-You are a security architect. Generate a complete auth and permissions schema.
+AUTH_PROMPT = """Generate an auth schema. Return ONLY compact JSON, no explanation.
 
-Return ONLY valid JSON:
-{{
-    "roles": ["admin", "user"],
-    "permissions": {{
-        "admin": ["create", "read", "update", "delete"],
-        "user": ["read", "update"]
-    }},
-    "protected_routes": ["/api/v1/dashboard", "/api/v1/admin"],
-    "premium_gates": ["advanced_analytics", "exports"]
-}}
+Format:
+{{"roles":["admin","user"],"permissions":{{"admin":["create","read","update","delete"],"user":["read","update_own"]}},"protected_routes":["/api/v1/dashboard"],"premium_gates":["advanced_analytics","exports"]}}
 
-Rules:
-- Return ONLY JSON, no markdown, no backticks
-- Every role must have explicit permissions
-- Super admin always has all permissions
-- List every protected API route
+Roles: {roles}
+Has payments: {has_payments}
+Features: {features}"""
 
-Intent: {intent}
-Design: {design}
-"""
+BUSINESS_PROMPT = """Generate business logic rules. Return ONLY compact JSON, no explanation.
 
-BUSINESS_PROMPT = """
-You are a product architect. Generate complete business logic rules.
+Format:
+{{"free_limits":{{"projects":"max 3","members":"max 5"}},"premium_features":["unlimited_projects","advanced_analytics","exports"],"validation_rules":["email must be unique","password min 8 chars"],"notification_triggers":["task assigned","deadline approaching","comment added"]}}
 
-Return ONLY valid JSON:
-{{
-    "free_limits": {{
-        "projects": "max 3 projects",
-        "members": "max 5 members per project"
-    }},
-    "premium_features": ["unlimited_projects", "advanced_analytics", "exports"],
-    "validation_rules": ["email must be unique", "password min 8 chars"],
-    "notification_triggers": ["task assigned", "deadline approaching", "comment added"]
-}}
-
-Rules:
-- Return ONLY JSON, no markdown, no backticks
-- Define clear free vs premium limits
-- Cover all validation rules for forms
-- List all notification events
-
-Intent: {intent}
-Design: {design}
-"""
+App type: {app_type}
+Has payments: {has_payments}
+Features: {features}"""
 
 
-def _call_groq(prompt: str, mode: str, max_tokens: int = 2048) -> dict:
+def _call_groq(prompt: str, mode: str, max_tokens: int = 1200) -> dict:
     temperature = {
         "fast": settings.TEMPERATURE_FAST,
         "balanced": settings.TEMPERATURE_BALANCED,
@@ -181,7 +70,7 @@ def _call_groq(prompt: str, mode: str, max_tokens: int = 2048) -> dict:
     }.get(mode, settings.TEMPERATURE_BALANCED)
 
     response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model="llama-3.1-8b-instant",
         temperature=temperature,
         max_tokens=max_tokens,
         messages=[{"role": "user", "content": prompt}]
@@ -189,7 +78,8 @@ def _call_groq(prompt: str, mode: str, max_tokens: int = 2048) -> dict:
 
     raw = response.choices[0].message.content.strip()
     raw = raw.replace("```json", "").replace("```", "").strip()
-    return json.loads(raw)
+    repaired = repair_json(raw)
+    return json.loads(repaired)
 
 
 def generate_schemas(
@@ -197,32 +87,52 @@ def generate_schemas(
     design: SystemDesignData,
     mode: str = "balanced"
 ) -> tuple[UISchema, APISchema, DBSchema, AuthSchema, BusinessLogic]:
-    """
-    Stage 3 — Generate all 4 schemas + business logic
-    """
     print(f"⚙️  Stage 3: Generating schemas...")
 
-    intent_str = json.dumps(intent.model_dump(), indent=2)
-    design_str = json.dumps(design.model_dump(), indent=2)
+    features_str = ", ".join(intent.features)
+    roles_str = ", ".join(intent.roles)
+    entities_str = ", ".join(intent.entities)
+    pages_str = ", ".join(design.pages)
 
     print("   → Generating UI Schema...")
-    ui_data = _call_groq(UI_PROMPT.format(intent=intent_str, design=design_str), mode, 2048)
+    ui_data = _call_groq(UI_PROMPT.format(
+        app_type=intent.app_type,
+        features=features_str,
+        roles=roles_str,
+        pages=pages_str
+    ), mode, 1200)
     ui_schema = UISchema(**ui_data)
 
     print("   → Generating API Schema...")
-    api_data = _call_groq(API_PROMPT.format(intent=intent_str, design=design_str), mode, 2048)
+    api_data = _call_groq(API_PROMPT.format(
+        app_type=intent.app_type,
+        features=features_str,
+        entities=entities_str,
+        roles=roles_str
+    ), mode, 1200)
     api_schema = APISchema(**api_data)
 
     print("   → Generating DB Schema...")
-    db_data = _call_groq(DB_PROMPT.format(intent=intent_str, design=design_str), mode, 2048)
+    db_data = _call_groq(DB_PROMPT.format(
+        app_type=intent.app_type,
+        entities=entities_str
+    ), mode, 1200)
     db_schema = DBSchema(**db_data)
 
     print("   → Generating Auth Schema...")
-    auth_data = _call_groq(AUTH_PROMPT.format(intent=intent_str, design=design_str), mode, 1024)
+    auth_data = _call_groq(AUTH_PROMPT.format(
+        roles=roles_str,
+        has_payments=intent.has_payments,
+        features=features_str
+    ), mode, 600)
     auth_schema = AuthSchema(**auth_data)
 
     print("   → Generating Business Logic...")
-    biz_data = _call_groq(BUSINESS_PROMPT.format(intent=intent_str, design=design_str), mode, 1024)
+    biz_data = _call_groq(BUSINESS_PROMPT.format(
+        app_type=intent.app_type,
+        has_payments=intent.has_payments,
+        features=features_str
+    ), mode, 600)
     business_logic = BusinessLogic(**biz_data)
 
     print(f"✅ Stage 3 Done — UI: {len(ui_schema.pages)} pages | API: {len(api_schema.endpoints)} endpoints | DB: {len(db_schema.tables)} tables")
