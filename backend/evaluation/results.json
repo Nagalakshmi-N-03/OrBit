@@ -1,0 +1,173 @@
+{
+  "total_prompts": 20,
+  "success_rate": 40.0,
+  "average_latency": 56.08,
+  "average_retries": 0.6,
+  "failure_types": {
+    "simulation_failed": 4,
+    "ValidationError": 6,
+    "JSONDecodeError": 2
+  },
+  "results": [
+    {
+      "prompt": "Build a project management tool with kanban board, tasks, deadlines, team roles, and notifications",
+      "success": false,
+      "retries": 1,
+      "latency": 30.69,
+      "failure_type": "simulation_failed",
+      "confidence": 0.95
+    },
+    {
+      "prompt": "Build a CRM with contacts, deals, pipeline stages, role-based access, and admin analytics",
+      "success": false,
+      "retries": 0,
+      "latency": 41.88,
+      "failure_type": "ValidationError",
+      "confidence": 0.95
+    },
+    {
+      "prompt": "Create an e-commerce store with products, cart, checkout, payments, and inventory management",
+      "success": false,
+      "retries": 1,
+      "latency": 94.3,
+      "failure_type": "simulation_failed",
+      "confidence": 0.95
+    },
+    {
+      "prompt": "Build a hospital management system with patient records, appointments, prescriptions, and billing",
+      "success": true,
+      "retries": 1,
+      "latency": 84.58,
+      "failure_type": null,
+      "confidence": 0.95
+    },
+    {
+      "prompt": "Create a learning management system where teachers upload courses and students track progress",
+      "success": false,
+      "retries": 1,
+      "latency": 82.71,
+      "failure_type": "simulation_failed",
+      "confidence": 0.95
+    },
+    {
+      "prompt": "Build a food delivery app with restaurants, menus, orders, delivery tracking, and payments",
+      "success": true,
+      "retries": 1,
+      "latency": 80.08,
+      "failure_type": null,
+      "confidence": 0.95
+    },
+    {
+      "prompt": "Create a hotel booking system with room listings, reservations, availability, and payments",
+      "success": true,
+      "retries": 1,
+      "latency": 80.61,
+      "failure_type": null,
+      "confidence": 0.95
+    },
+    {
+      "prompt": "Build a job portal where companies post jobs, candidates apply, and admins approve listings",
+      "success": false,
+      "retries": 0,
+      "latency": 17.59,
+      "failure_type": "ValidationError",
+      "confidence": 0.95
+    },
+    {
+      "prompt": "Create a community forum with posts, comments, upvotes, user badges, and moderation tools",
+      "success": false,
+      "retries": 1,
+      "latency": 85.22,
+      "failure_type": "simulation_failed",
+      "confidence": 0.95
+    },
+    {
+      "prompt": "Build a SaaS analytics dashboard where businesses track KPIs, team performance, and generate reports",
+      "success": true,
+      "retries": 1,
+      "latency": 88.58,
+      "failure_type": null,
+      "confidence": 0.95
+    },
+    {
+      "prompt": "Build an app",
+      "success": false,
+      "retries": 0,
+      "latency": 11.02,
+      "failure_type": "JSONDecodeError",
+      "confidence": 0.5
+    },
+    {
+      "prompt": "Make something for teams",
+      "success": true,
+      "retries": 1,
+      "latency": 79.04,
+      "failure_type": null,
+      "confidence": 0.8
+    },
+    {
+      "prompt": "Build a free app but charge users for every feature",
+      "success": false,
+      "retries": 0,
+      "latency": 19.6,
+      "failure_type": "ValidationError",
+      "confidence": 0.85
+    },
+    {
+      "prompt": "All users should be admins but only admins can see data",
+      "success": false,
+      "retries": 0,
+      "latency": 19.55,
+      "failure_type": "JSONDecodeError",
+      "confidence": 0.95
+    },
+    {
+      "prompt": "Add a dashboard",
+      "success": true,
+      "retries": 1,
+      "latency": 70.25,
+      "failure_type": null,
+      "confidence": 0.8
+    },
+    {
+      "prompt": "Build something with login",
+      "success": true,
+      "retries": 1,
+      "latency": 65.64,
+      "failure_type": null,
+      "confidence": 0.8
+    },
+    {
+      "prompt": "Build a project management tool with kanban boards, gantt charts, time tracking, invoicing, client portal, resource allocation, sprint planning, burndown charts, slack integration, github integration, google calendar sync, custom fields, recurring tasks, subtasks, dependencies, priority levels, tags, comments, file attachments, video calls, and AI suggestions",
+      "success": false,
+      "retries": 0,
+      "latency": 45.88,
+      "failure_type": "ValidationError",
+      "confidence": 0.95
+    },
+    {
+      "prompt": "Build an app with roles and payments and some kind of tracking",
+      "success": false,
+      "retries": 0,
+      "latency": 18.95,
+      "failure_type": "ValidationError",
+      "confidence": 0.85
+    },
+    {
+      "prompt": "Build a simple app but make it enterprise grade with military level security",
+      "success": true,
+      "retries": 1,
+      "latency": 65.24,
+      "failure_type": null,
+      "confidence": 0.9
+    },
+    {
+      "prompt": "Build an app with payments",
+      "success": false,
+      "retries": 0,
+      "latency": 40.22,
+      "failure_type": "ValidationError",
+      "confidence": 0.9
+    }
+  ]
+}
